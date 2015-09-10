@@ -16,10 +16,28 @@ action = gets.chomp.to_i
 puts message_hash[action]
 url = gets.chomp
 
-if action.zero?
+case action
+when 0
+  premium = user.premium
+  until premium || user.submitted_urls.count < 5
+    puts "Upgrade to our premium service for more fun!"
+    puts "Would you like to upgrade for a modest daily fee of $500? (y/n)"
+
+    yesno = gets.chomp.downcase
+    case yesno
+    when 'y'
+      User.update(user.id, premium: true)
+      premium = true
+    when 'n'
+      puts 'please reconsider...'
+    end
+  end
+
   puts ShortenedUrl.create_for_user_and_long_url!(user, url)
-else
+when 1
   shortened_url = ShortenedUrl.find_by_short_url(url)
   Visit.record_visit!(user, shortened_url)
   Launchy.open(shortened_url.long_url)
+else
+  'Invalid.  Will catch later.'
 end
