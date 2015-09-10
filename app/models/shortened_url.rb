@@ -41,6 +41,18 @@ class ShortenedUrl < ActiveRecord::Base
     a
   end
 
+  def self.prune
+    all.each do |url|
+      if url.last_accessed_at.nil?
+        url.destroy!
+      else
+        unless (10.minutes.ago < url.last_accessed_at && url.last_accessed_at < DateTime.now)
+          url.destroy!
+        end
+      end
+    end
+  end
+
   def num_clicks
     visits.count
   end
